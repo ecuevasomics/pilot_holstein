@@ -241,13 +241,21 @@ swot_data <- data.frame(
   )
 )
 
-kable(swot_data,
-      caption = "Análisis SWOT: Genotipificación en Ganado Holstein",
-      booktabs = TRUE) %>%
+
+swot_data %>%
+  group_by(Categoría) %>%
+  summarise(Elementos = paste("•", Elemento, collapse = "\n")) %>%
+  kable(caption = "Análisis SWOT del Mercado de Genotipificación Canina",
+        booktabs = TRUE,
+        col.names = c("Categoría", "Elementos Clave")) %>%
   kable_styling(bootstrap_options = c("striped", "hover"),
-                full_width = TRUE,
-                font_size = 10)
+                full_width = TRUE) %>%
+  row_spec(1, bold = TRUE, color = "white", background = "#10b981") %>%
+  row_spec(2, bold = TRUE, color = "white", background = "#f59e0b") %>%
+  row_spec(3, bold = TRUE, color = "white", background = "#3b82f6") %>%
+  row_spec(4, bold = TRUE, color = "white", background = "#ef4444")
 ```
+
 
 ---
 
