@@ -1,0 +1,505 @@
+---
+title: "Análisis de Mercado: Genotipificación en Ganado Holstein"
+subtitle: "México y Latinoamérica"
+author: "Erick Cuevas Fernández"
+date: "`r Sys.Date()`"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    theme: cosmo
+    code-fold: true
+    fig-width: 12
+    fig-height: 7
+    embed-resources: true
+  pdf:
+    toc: true
+    number-sections: true
+    latex-engine: xelatex
+bibliography: referencias_holstein.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center",
+  dev = "png"
+)
+
+# Cargar librerías necesarias
+library(tidyverse)
+library(plotly)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(scales)
+library(fmsb)
+library(readr)
+
+# Configurar tema
+theme_set(theme_minimal() + theme(
+  plot.title = element_text(size = 16, face = "bold"),
+  plot.subtitle = element_text(size = 12),
+  legend.position = "bottom"
+))
+```
+
+# Resumen Ejecutivo
+
+El mercado de genotipificación en ganado Holstein representa una oportunidad estratégica significativa en México y Latinoamérica. Este análisis evalúa el atractivo del mercado utilizando marcos empresariales establecidos (PESTEL, SWOT, 5 Fuerzas de Porter y Business Model Canvas) para proporcionar una evaluación integral de viabilidad y potencial.
+
+## Hallazgos Clave
+
+```{r datos-clave}
+# Crear tabla de hallazgos clave
+hallazgos <- data.frame(
+  Métrica = c(
+    "Mercado Global Genética Animal 2024",
+    "Mercado Bovino Específico 2024",
+    "Proyección Mercado Bovino 2030",
+    "CAGR Mercado Bovino",
+    "Producción Lechera Latinoamérica",
+    "Ganado Holstein en Lechería",
+    "Mejora Genética Anual",
+    "Empleos Generados (México)"
+  ),
+  Valor = c(
+    "USD 7.38 billones",
+    "USD 3.70 billones",
+    "USD 5.45 billones",
+    "6.60%",
+    "70.3 mil millones litros",
+    ">95% en regiones especializadas",
+    "+80 kg leche/vaca/año",
+    ">200,000 directos"
+  ),
+  Fuente = c(
+    "Grand View Research 2024",
+    "Mordor Intelligence 2025",
+    "Proyección CAGR",
+    "Mordor Intelligence 2025",
+    "IFCN Dairy Report 2024",
+    "INIFAP 2024",
+    "INIFAP 2024",
+    "INIFAP 2024"
+  )
+)
+
+kable(hallazgos,
+      caption = "Hallazgos Clave del Mercado de Genotipificación Holstein",
+      booktabs = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = TRUE,
+                font_size = 11)
+```
+
+---
+
+# Datos del Mercado Global
+
+## Crecimiento Proyectado del Mercado de Genética Animal
+
+```{r cargar-datos-mercado}
+# Cargar datos de crecimiento del mercado
+datos_mercado <- read_csv("datos_holstein_mercado.csv")
+
+# Transformar para visualización
+datos_long <- datos_mercado %>%
+  select(Año, Mercado_Global_USD_Billones, Mercado_Bovino_USD_Billones) %>%
+  pivot_longer(cols = -Año, names_to = "Mercado", values_to = "Valor") %>%
+  mutate(Mercado = case_when(
+    Mercado == "Mercado_Global_USD_Billones" ~ "Genética Animal Global",
+    Mercado == "Mercado_Bovino_USD_Billones" ~ "Genética Bovina Específica"
+  ))
+
+# Crear gráfico interactivo
+p1 <- ggplot(datos_long, aes(x = Año, y = Valor, color = Mercado, group = Mercado)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  scale_y_continuous(labels = dollar_format(prefix = "$", suffix = "B")) +
+  scale_color_manual(values = c("Genética Animal Global" = "#3b82f6", 
+                                 "Genética Bovina Específica" = "#10b981")) +
+  labs(
+    title = "Proyección del Mercado de Genética Animal 2024-2033",
+    subtitle = "Mercado Global vs. Segmento Bovino (USD Billones)",
+    x = "Año",
+    y = "Valor del Mercado",
+    color = "Segmento",
+    caption = "Fuente: Grand View Research 2024, Mordor Intelligence 2025"
+  )
+
+ggplotly(p1, tooltip = c("x", "y", "color"))
+```
+
+**Interpretación:** El mercado de genética animal crece a CAGR 6.95%, con el segmento bovino creciendo a 6.60%. Esto indica demanda sostenida y creciente para servicios de genotipificación en ganado.
+
+---
+
+## Producción Lechera en Latinoamérica
+
+```{r cargar-produccion}
+# Cargar datos de producción lechera
+produccion <- read_csv("datos_produccion_lechera.csv")
+
+# Gráfico de barras de producción
+p2 <- ggplot(produccion %>% filter(País != "Total_LATAM"), 
+             aes(x = reorder(País, -Producción_2024_Mil_Millones_Litros), 
+                 y = Producción_2024_Mil_Millones_Litros,
+                 fill = País)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set2") +
+  geom_text(aes(label = paste0(Producción_2024_Mil_Millones_Litros, "B")),
+            vjust = -0.5, size = 4) +
+  labs(
+    title = "Producción Lechera por País en Latinoamérica (2024)",
+    subtitle = "Miles de millones de litros anuales",
+    x = "País",
+    y = "Producción (Mil Millones de Litros)",
+    caption = "Fuente: IBGE, INIFAP, OCLA, Fedegán 2024"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
+
+ggplotly(p2)
+```
+
+**Interpretación:** Brasil lidera con 35.7 mil millones de litros, seguido por México (12.8B), Argentina (10.6B) y Colombia (3.1B). Latinoamérica produce 70.3 mil millones de litros anuales, representando 11.4% de la producción mundial.
+
+---
+
+# Análisis PESTEL
+
+El análisis PESTEL evalúa factores macro-ambientales que influyen en el mercado de genotipificación Holstein.
+
+## Factores Políticos
+
+El marco regulatorio en Latinoamérica es favorable para la adopción de tecnologías de genotipificación. En México, el INIFAP (Instituto Nacional de Investigaciones Forestales, Agrícolas y Pecuarias) trabaja en conjunto con la Asociación Holstein de México para realizar evaluaciones genéticas semestrales. Esta colaboración institucional crea un entorno propicio para la adopción de herramientas genómicas.
+
+SENASICA (Servicio Nacional de Sanidad, Inocuidad y Calidad Agroalimentaria) supervisa todos los productos y servicios veterinarios, incluyendo pruebas de diagnóstico genético, bajo la NOM-012-SAG/ZOO-2020. Los gobiernos latinoamericanos invierten en investigación agrícola y pecuaria, facilitando la adopción de tecnologías avanzadas.
+
+## Factores Económicos
+
+El mercado de genética animal crece a CAGR 6.95% globalmente, con el segmento bovino creciendo a 6.60%. Latinoamérica produce 70.3 mil millones de litros de leche anuales, representando una base económica significativa. En México, la producción de leche ocupa el tercer lugar en importancia pecuaria (17.22% del valor nacional) y genera más de 200,000 empleos directos.
+
+Sin embargo, la volatilidad económica regional (devaluación, inflación, aumento de costos) limita la inversión en tecnologías premium. En 2024, el crecimiento lechero en Latinoamérica fue solo +0.8%, afectado por factores económicos adversos.
+
+## Factores Sociales
+
+Existe creciente conciencia sobre el bienestar animal y sostenibilidad ambiental. La genotipificación permite seleccionar animales con mejor conformación y longevidad, mejorando su calidad de vida. Consumidores demandan productos lecheros producidos de manera sostenible, justificando inversión en mejora genética.
+
+La adopción de genotipificación es aún baja entre productores pequeños y medianos, especialmente en zonas rurales, debido a falta de educación técnica y acceso limitado a información.
+
+## Factores Tecnológicos
+
+Tecnologías de genotipificación están disponibles globalmente a través de empresas como Zoetis, Neogen (Igenity), Hendrix Genetics y ABS Global. Laboratorios especializados como Amplicare Lab (México) ofrecen servicios localmente, reduciendo costos y tiempos de procesamiento.
+
+Plataformas como "Qué Toro?" (publicación semestral INIFAP-Holstein México) integran evaluaciones genéticas. Sistemas de información ganadera se están digitalizando en toda la región, facilitando adopción.
+
+## Factores Ecológicos
+
+Regulaciones ambientales cada vez más estrictas requieren reducción de emisiones de gases de efecto invernadero. La genotipificación permite seleccionar ganado más eficiente, reduciendo la huella de carbono por litro de leche. El mejoramiento genético continuo (+80 kg de leche anuales por vaca) permite producir más leche con los mismos insumos.
+
+## Factores Legales
+
+En México, SENASICA supervisa productos y servicios veterinarios. NOM-012-SAG/ZOO-2020 establece especificaciones para productos de uso animal. Sistemas de evaluación genética están regulados a nivel nacional, asegurando calidad y confiabilidad.
+
+Emerge regulación sobre privacidad de datos genéticos de animales. Organismos internacionales (ICAR - International Committee for Animal Recording) establecen estándares para evaluaciones genéticas, facilitando comparabilidad regional.
+
+---
+
+# Análisis SWOT
+
+```{r crear-tabla-swot}
+swot_data <- data.frame(
+  Categoría = c(
+    "Fortalezas", "Fortalezas", "Fortalezas", "Fortalezas", "Fortalezas",
+    "Debilidades", "Debilidades", "Debilidades", "Debilidades",
+    "Oportunidades", "Oportunidades", "Oportunidades", "Oportunidades",
+    "Amenazas", "Amenazas", "Amenazas"
+  ),
+  Elemento = c(
+    "Mercado global en crecimiento (6.95% CAGR)",
+    "Producción lechera significativa (70.3B litros/año)",
+    "Ganado Holstein dominante (>95% especializado)",
+    "Mejora genética comprobada (+80 kg leche/año)",
+    "Infraestructura institucional establecida",
+    "Adopción baja de genotipificación",
+    "Costos elevados de servicios (USD 40-80/animal)",
+    "Brecha digital y acceso limitado",
+    "Volatilidad económica regional",
+    "Demanda de productividad creciente",
+    "Sostenibilidad como diferenciador",
+    "Educación y capacitación técnica",
+    "Asociaciones público-privadas",
+    "Competencia de empresas internacionales",
+    "Cambios en políticas agrícolas",
+    "Resistencia de productores tradicionales"
+  )
+)
+
+kable(swot_data,
+      caption = "Análisis SWOT: Genotipificación en Ganado Holstein",
+      booktabs = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = TRUE,
+                font_size = 10)
+```
+
+---
+
+# Análisis de las 5 Fuerzas de Porter
+
+```{r cargar-porter}
+# Cargar datos de Porter
+porter <- read_csv("datos_porter_holstein.csv")
+
+# Crear gráfico radar
+# Preparar datos para fmsb
+max_val <- 10
+min_val <- 0
+
+porter_matrix <- rbind(
+  rep(max_val, 5),  # Máximo
+  rep(min_val, 5),  # Mínimo
+  porter$Intensidad_0_10  # Valores reales
+)
+colnames(porter_matrix) <- porter$Fuerza
+porter_matrix <- as.data.frame(porter_matrix)
+
+# Crear gráfico radar
+radarchart(
+  porter_matrix,
+  axistype = 1,
+  pcol = "#3b82f6",
+  pfcol = rgb(59, 130, 246, 0.3, maxColorValue = 255),
+  plwd = 2,
+  cglcol = "grey",
+  cglty = 1,
+  axislabcol = "black",
+  caxislabels = seq(0, 10, 2.5),
+  cglwd = 0.8,
+  vlcex = 0.85,
+  title = "Intensidad de las 5 Fuerzas de Porter\n(Escala 0-10)"
+)
+```
+
+**Interpretación de Fuerzas:**
+
+```{r tabla-porter}
+kable(porter %>% select(Fuerza, Intensidad_0_10, Nivel, Impacto_Negocio),
+      caption = "Análisis Detallado de las 5 Fuerzas de Porter",
+      col.names = c("Fuerza", "Intensidad", "Nivel", "Impacto en Negocio"),
+      booktabs = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = TRUE,
+                font_size = 10)
+```
+
+**Conclusión:** La industria presenta atractivo moderado-alto. Rivalidad es alta pero manejable mediante diferenciación en servicio. Poder de compradores es significativo, requiriendo énfasis en valor y accesibilidad.
+
+---
+
+# Business Model Canvas
+
+## Segmentos de Clientes
+
+```{r cargar-segmentos}
+# Cargar datos de segmentos
+segmentos <- read_csv("datos_segmentos_clientes.csv")
+
+# Visualizar segmentos
+p_segmentos <- ggplot(segmentos, 
+                      aes(x = reorder(Segmento, -Ingresos_Potenciales_Millones_USD),
+                          y = Ingresos_Potenciales_Millones_USD,
+                          fill = Potencial_Adopción)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("ALTO" = "#10b981", 
+                               "MEDIO-ALTO" = "#f59e0b",
+                               "MEDIO" = "#f97316")) +
+  geom_text(aes(label = paste0("$", Ingresos_Potenciales_Millones_USD, "M")),
+            vjust = -0.5, size = 3.5) +
+  labs(
+    title = "Ingresos Potenciales por Segmento de Clientes",
+    subtitle = "Proyección de ingresos anuales (USD Millones)",
+    x = "Segmento de Cliente",
+    y = "Ingresos Potenciales (USD Millones)",
+    fill = "Potencial de Adopción",
+    caption = "Fuente: Análisis de Mercado"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p_segmentos)
+```
+
+**Segmentos Principales:**
+
+1. **Ganaderos Especializados Grandes** (500+ vacas): Potencial alto, adopción rápida
+2. **Ganaderos Medianos** (100-500 vacas): Potencial medio-alto, volumen creciente
+3. **Criadores y Reproductores**: Potencial alto, alto valor por cliente
+4. **Asociaciones y Cooperativas**: Potencial medio, volumen significativo
+5. **Instituciones de Investigación**: Potencial medio, valor estratégico
+
+## Fuentes de Ingresos
+
+```{r cargar-ingresos}
+# Cargar datos de fuentes de ingresos
+ingresos <- read_csv("datos_fuentes_ingresos.csv")
+
+# Crear gráfico de composición de ingresos
+p_ingresos <- ggplot(ingresos, 
+                     aes(x = reorder(Fuente_Ingresos, -Ingresos_Anuales_Millones_USD),
+                         y = Ingresos_Anuales_Millones_USD,
+                         fill = Tipo)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("Transaccional" = "#3b82f6",
+                               "Recurrente" = "#10b981",
+                               "Proyecto" = "#f59e0b",
+                               "Evento" = "#8b5cf6",
+                               "Licencia" = "#ec4899",
+                               "Comisión" = "#14b8a6")) +
+  geom_text(aes(label = paste0("$", Ingresos_Anuales_Millones_USD, "M")),
+            vjust = -0.5, size = 3) +
+  labs(
+    title = "Composición de Fuentes de Ingresos",
+    subtitle = "Proyección de ingresos anuales (USD Millones)",
+    x = "Fuente de Ingresos",
+    y = "Ingresos Anuales (USD Millones)",
+    fill = "Tipo de Ingresos",
+    caption = "Fuente: Análisis de Mercado"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p_ingresos)
+```
+
+**Ingresos Totales Proyectados:** USD 5.56 millones anuales (Año 3)
+
+**Composición:**
+- Pruebas de Genotipificación: 64.7% (transaccional)
+- Suscripciones Plataforma: 21.6% (recurrente)
+- Consultoría: 1.8% (proyecto)
+- Educación: 1.1% (evento)
+- Licencias de Datos: 9% (licencia)
+- Alianzas: 9% (comisión)
+
+---
+
+# Indicadores Clave de Desempeño (KPIs)
+
+```{r kpis}
+kpis_data <- data.frame(
+  Categoría = c(
+    "Financieros", "Financieros", "Financieros", "Financieros",
+    "Volumen", "Volumen", "Volumen",
+    "Mercado", "Mercado", "Mercado",
+    "Cliente", "Cliente", "Cliente", "Cliente",
+    "Operación", "Operación", "Operación", "Operación"
+  ),
+  KPI = c(
+    "Ingresos Anuales (Año 3)",
+    "Margen Bruto",
+    "Margen Operativo",
+    "ROI",
+    "Pruebas/Año",
+    "Clientes Activos",
+    "Suscriptores",
+    "Cuota de Mercado (Año 5)",
+    "Tasa de Crecimiento Anual",
+    "Penetración en Segmento",
+    "Tasa de Retención",
+    "Costo de Adquisición",
+    "Lifetime Value",
+    "NPS (Net Promoter Score)",
+    "Tiempo de Procesamiento",
+    "Tasa de Error",
+    "Disponibilidad Plataforma",
+    "Satisfacción del Cliente"
+  ),
+  Objetivo = c(
+    "USD 2-5 millones",
+    "60-70%",
+    "20-30%",
+    "30-40% anual",
+    "50,000-100,000",
+    "500-1,500",
+    "500-2,000",
+    "10-20%",
+    "40-60%",
+    "30-50%",
+    ">80%",
+    "<USD 500",
+    "USD 2,000-5,000",
+    ">50",
+    "<7 días",
+    "<0.1%",
+    ">99.5%",
+    ">85%"
+  )
+)
+
+kable(kpis_data,
+      caption = "Indicadores Clave de Desempeño (KPIs)",
+      booktabs = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = TRUE,
+                font_size = 9)
+```
+
+---
+
+# Conclusiones y Recomendaciones
+
+## Conclusiones Principales
+
+1. **Mercado Atractivo**: CAGR 6.60% en genética bovina supera crecimiento económico general
+2. **Base Económica Sólida**: Latinoamérica produce 70.3 mil millones de litros anuales
+3. **Adopción Baja**: Oportunidad significativa para penetración de servicios genómicos
+4. **Mejora Genética Comprobada**: +80 kg leche/vaca/año demuestra ROI tangible
+5. **Infraestructura Disponible**: Instituciones y laboratorios locales facilitan operaciones
+
+## Recomendaciones Estratégicas
+
+### Estrategia de Entrada al Mercado
+
+1. **Enfoque Regional**: Comenzar en México (INIFAP, Holstein México) y expandir a Brasil y Argentina
+2. **Alianzas Estratégicas**: Asociarse con instituciones públicas (INIFAP, universidades) para credibilidad
+3. **Segmentación**: Enfocarse primero en ganaderos especializados grandes (alto valor)
+4. **Educación**: Invertir en programas de capacitación técnica para aumentar adopción
+
+### Modelo de Negocio
+
+1. **Diversificación de Ingresos**: Combinar pruebas (volumen), suscripciones (recurrencia), consultoría (valor)
+2. **Pricing Escalonado**: Ofrecer servicios a diferentes precios para segmentos medianos y pequeños
+3. **Plataforma Digital**: Invertir en plataforma integrada para diferenciación y escalabilidad
+4. **Punto de Equilibrio**: ~1,360 pruebas/mes para cubrir costos operativos
+
+### Diferenciación Competitiva
+
+1. **Servicio al Cliente**: Soporte técnico en español, consultoría personalizada
+2. **Educación Continua**: Webinarios, talleres, materiales educativos
+3. **Comunidad**: Crear plataforma de networking entre ganaderos
+4. **Sostenibilidad**: Enfatizar beneficios ambientales de genotipificación
+
+### Factores Críticos de Éxito
+
+1. Educación del mercado sobre valor de genotipificación
+2. Accesibilidad de servicios (precio, ubicación, formato)
+3. Alianzas con instituciones públicas y privadas
+4. Diferenciación mediante servicio superior
+5. Inversión continua en I+D
+6. Gestión financiera disciplinada
+
+---
+
+# Referencias
+
+```{r, results='asis'}
+# Las referencias se generan automáticamente desde el archivo .bib
+```
+
+---
+

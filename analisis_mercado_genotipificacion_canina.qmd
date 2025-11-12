@@ -1,0 +1,795 @@
+---
+title: "Análisis de Mercado: Genotipificación de Enfermedades en Perros"
+subtitle: "México y Latinoamérica"
+author: "Erick Cuevas Fernández"
+date: "`r Sys.Date()`"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    theme: cosmo
+    code-fold: true
+    code-summary: "Ver código"
+    fig-width: 10
+    fig-height: 6
+    df-print: paged
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+execute:
+  warning: false
+  message: false
+  echo: true
+bibliography: referencias.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+
+# Cargar librerías necesarias
+library(tidyverse)
+library(plotly)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(scales)
+library(fmsb)
+```
+
+# Resumen Ejecutivo
+
+El mercado de genotipificación de enfermedades en perros presenta un crecimiento robusto en México y Latinoamérica, impulsado por la humanización de mascotas y la creciente conciencia sobre salud preventiva. Este análisis utiliza marcos empresariales establecidos (PESTEL, SWOT, 5 Fuerzas de Porter y Business Model Canvas) para evaluar el atractivo y viabilidad del mercado.
+
+## Datos del Mercado
+
+```{r datos-mercado}
+# Datos de crecimiento del mercado
+# Fuente: Grand View Research - Horizon Databook 2024
+datos_crecimiento <- data.frame(
+  Año = c(2024, 2025, 2026, 2027, 2028, 2029, 2030),
+  México = c(7.6, 8.3, 9.1, 9.9, 10.8, 11.8, 12.9),
+  Latinoamérica = c(28.2, 30.6, 33.2, 36.0, 39.0, 42.2, 45.6)
+)
+
+# Datos de segmentación por tipo de animal
+# Fuente: Grand View Research 2024
+segmentos_animal <- data.frame(
+  Tipo = c("Perros", "Gatos", "Otros"),
+  México = c(73.68, 20.32, 6.0),
+  Latinoamérica = c(75.89, 18.11, 6.0)
+)
+
+# Datos de penetración de mascotas en hogares
+# Fuente: INEGI - ENBIARE 2021
+hogares_mascotas <- data.frame(
+  Categoría = c("Con mascotas", "Sin mascotas"),
+  Porcentaje = c(69.8, 30.2)
+)
+
+# Datos de seguros para mascotas
+# Fuente: Anuario LatAm Seguros 2024
+seguros_mascotas <- data.frame(
+  Categoría = c("Con seguro", "Sin seguro"),
+  Porcentaje = c(4.3, 95.7)
+)
+
+# Empresas principales del mercado
+# Fuente: Grand View Research - Company Profiles 2024
+empresas <- data.frame(
+  Empresa = c("Embark", "Wisdom Panel", "Orivet", "Zoetis", "Neogen"),
+  Empleados = c(175, 10000, 30, 14100, 2640),
+  Región = c("América del Norte", "América del Norte", "Oceanía", 
+             "América del Norte", "América del Norte")
+)
+
+# Fuerzas de Porter (escala 0-10)
+# Análisis propio basado en investigación de mercado
+fuerzas_porter <- data.frame(
+  Fuerza = c("Rivalidad\nCompetidores", "Amenaza\nNuevos Entrantes", 
+             "Poder\nProveedores", "Poder\nCompradores", "Amenaza\nSustitutos"),
+  Intensidad = c(8, 6, 4, 7, 6)
+)
+```
+
+## Métricas Clave
+
+```{r metricas-clave}
+metricas <- data.frame(
+  Métrica = c(
+    "Mercado México 2024",
+    "Proyección México 2030",
+    "CAGR México 2025-2030",
+    "Mercado Latinoamérica 2024",
+    "Proyección Latinoamérica 2030",
+    "CAGR Latinoamérica 2025-2030",
+    "Hogares con mascotas (México)",
+    "Total perros en México",
+    "Mascotas con seguro"
+  ),
+  Valor = c(
+    "USD 7.6 millones",
+    "USD 12.9 millones",
+    "9.2%",
+    "USD 28.2 millones",
+    "USD 45.6 millones",
+    "8.4%",
+    "69.8%",
+    "43.8 millones",
+    "4.3%"
+  ),
+  Fuente = c(
+    "Grand View Research, 2024",
+    "Grand View Research, 2024",
+    "Grand View Research, 2024",
+    "Grand View Research, 2024",
+    "Grand View Research, 2024",
+    "Grand View Research, 2024",
+    "INEGI - ENBIARE 2021",
+    "INEGI - ENBIARE 2021",
+    "Anuario LatAm Seguros, 2024"
+  )
+)
+
+kable(metricas, 
+      caption = "Métricas Clave del Mercado de Genotipificación Canina",
+      booktabs = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE,
+                font_size = 12)
+```
+
+**Fuentes principales:**
+
+- Grand View Research. (2024). *Mexico Pet DNA Testing Market Size & Outlook, 2024-2030*. Horizon Databook.
+- Grand View Research. (2024). *Latin America Veterinary DNA Testing Market Size & Outlook, 2030*.
+- IMARC Group. (2024). *Mexico Veterinary Healthcare Market Report 2025-2033*.
+- INEGI. (2021). *Encuesta Nacional de Bienestar Autorreportado (ENBIARE)*.
+
+# Visualizaciones de Datos del Mercado
+
+## Proyección de Crecimiento del Mercado
+
+```{r grafico-crecimiento, fig.cap="Proyección de crecimiento del mercado de pruebas de ADN para mascotas (2024-2030)"}
+# Transformar datos para ggplot
+datos_long <- datos_crecimiento %>%
+  pivot_longer(cols = c(México, Latinoamérica), 
+               names_to = "Región", 
+               values_to = "Valor")
+
+# Crear gráfico
+p1 <- ggplot(datos_long, aes(x = Año, y = Valor, color = Región, group = Región)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  scale_y_continuous(labels = dollar_format(prefix = "$", suffix = "M")) +
+  scale_x_continuous(breaks = 2024:2030) +
+  scale_color_manual(values = c("México" = "#3b82f6", "Latinoamérica" = "#10b981")) +
+  labs(
+    title = "Crecimiento del Mercado de Pruebas de ADN para Mascotas",
+    subtitle = "Proyección 2024-2030 (USD Millones)",
+    x = "Año",
+    y = "Valor del Mercado (USD Millones)",
+    color = "Región",
+    caption = "Fuente: Grand View Research - Horizon Databook 2024"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 12),
+    legend.position = "bottom"
+  )
+
+# Convertir a plotly para interactividad
+ggplotly(p1)
+```
+
+**Fuente:** Grand View Research. (2024). *Mexico Pet DNA Testing Market Size & Outlook, 2024-2030* y *Latin America Veterinary DNA Testing Market Size & Outlook, 2030*. Horizon Databook. Disponible en: https://www.grandviewresearch.com/horizon/outlook/
+
+## Segmentación por Tipo de Animal
+
+```{r grafico-segmentos, fig.cap="Distribución del mercado por tipo de animal en México"}
+# Gráfico de pastel para México
+p2 <- ggplot(segmentos_animal, aes(x = "", y = México, fill = Tipo)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_manual(values = c("#10b981", "#3b82f6", "#a855f7")) +
+  geom_text(aes(label = paste0(round(México, 1), "%")), 
+            position = position_stack(vjust = 0.5),
+            color = "white",
+            size = 5,
+            fontface = "bold") +
+  labs(
+    title = "Segmentación del Mercado por Tipo de Animal - México",
+    subtitle = "Distribución porcentual 2024",
+    fill = "Tipo de Animal",
+    caption = "Fuente: Grand View Research 2024"
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 11, hjust = 0.5),
+    legend.position = "right"
+  )
+
+print(p2)
+```
+
+**Fuente:** Grand View Research. (2024). *Mexico Pet DNA Testing Market Outlook*. Los perros representan el 73.68% del mercado en México, seguidos por gatos (20.32%) y otros animales (6.0%).
+
+## Penetración de Mascotas en Hogares
+
+```{r grafico-hogares, fig.cap="Penetración de mascotas en hogares mexicanos"}
+p3 <- ggplot(hogares_mascotas, aes(x = "", y = Porcentaje, fill = Categoría)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_manual(values = c("#10b981", "#ef4444")) +
+  geom_text(aes(label = paste0(round(Porcentaje, 1), "%")), 
+            position = position_stack(vjust = 0.5),
+            color = "white",
+            size = 6,
+            fontface = "bold") +
+  labs(
+    title = "Penetración de Mascotas en Hogares Mexicanos",
+    subtitle = "69.8% de hogares tienen al menos una mascota",
+    fill = "Categoría",
+    caption = "Fuente: INEGI - ENBIARE 2021"
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 11, hjust = 0.5),
+    legend.position = "right"
+  )
+
+print(p3)
+```
+
+**Fuente:** Instituto Nacional de Estadística y Geografía (INEGI). (2021). *Encuesta Nacional de Bienestar Autorreportado (ENBIARE)*. México cuenta con más de 80 millones de animales de compañía, de los cuales 43.8 millones son perros.
+
+## Oportunidad en Seguros para Mascotas
+
+```{r grafico-seguros, fig.cap="Penetración de seguros para mascotas en México"}
+p4 <- ggplot(seguros_mascotas, aes(x = Categoría, y = Porcentaje, fill = Categoría)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("#10b981", "#ef4444")) +
+  geom_text(aes(label = paste0(round(Porcentaje, 1), "%")), 
+            vjust = -0.5,
+            size = 5,
+            fontface = "bold") +
+  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, 20)) +
+  labs(
+    title = "Penetración de Seguros para Mascotas en México",
+    subtitle = "Solo 4.3% de mascotas cuentan con seguro - Gran oportunidad de mercado",
+    x = "",
+    y = "Porcentaje (%)",
+    caption = "Fuente: Anuario LatAm Seguros 2024"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    plot.subtitle = element_text(size = 11),
+    legend.position = "none",
+    axis.text.x = element_text(size = 12, face = "bold")
+  )
+
+print(p4)
+```
+
+**Fuente:** Anuario LatAm Seguros. (2024). *El 4.3% de las mascotas mexicanas cuentan con seguro*. El 90% de los dueños desconocen la existencia de seguros para mascotas, representando una oportunidad significativa para productos integrados.
+
+# Análisis PESTEL
+
+El análisis PESTEL evalúa los factores macro-ambientales que influyen en el mercado de genotipificación canina.
+
+## Factores Políticos
+
+**Regulaciones y Normativas:**
+
+- **SENASICA** (Servicio Nacional de Sanidad, Inocuidad y Calidad Agroalimentaria) supervisa todos los productos y servicios veterinarios.
+- **NOM-012-SAG/ZOO-2020**: Regula especificaciones para productos de uso animal, incluyendo pruebas diagnósticas genéticas.
+- **Ley Federal de Sanidad Animal** y su Reglamento (2012) establecen lineamientos para diagnóstico y prevención de enfermedades.
+
+**Políticas de Bienestar Animal:**
+
+En julio de 2024, Humane Society International/México lanzó un programa piloto en Aguascalientes con clínicas veterinarias móviles y campañas educativas, demostrando el compromiso gubernamental con el bienestar animal.
+
+**Fuentes:**
+
+- Gobierno de México. (2020). *NOM-012-SAG/ZOO-2020: Especificaciones para la regulación de productos para uso o consumo animal*. DOF.
+- SENASICA. (2024). *Control de Productos Veterinarios*. Disponible en: https://www.gob.mx/senasica/
+
+## Factores Económicos
+
+```{r tabla-economicos}
+economicos <- data.frame(
+  Indicador = c(
+    "CAGR México 2025-2030",
+    "CAGR Latinoamérica 2025-2030",
+    "Mercado total mascotas México 2024",
+    "Mercado alimentos mascotas 2024",
+    "Crecimiento alimento perros (anual)"
+  ),
+  Valor = c("9.2%", "8.4%", "USD 5,400 millones", "USD 3,290 millones", "4.4%"),
+  Fuente = c(
+    "Grand View Research 2024",
+    "Grand View Research 2024",
+    "Forbes México 2024",
+    "Swiss Info 2025",
+    "Kantar 2024"
+  )
+)
+
+kable(economicos, 
+      caption = "Indicadores Económicos del Mercado de Mascotas",
+      booktabs = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = FALSE)
+```
+
+**Premiumización del Mercado:**
+
+La tendencia hacia productos premium y super premium está transformando el mercado. Los consumidores latinoamericanos buscan cada vez más opciones de alta calidad, creando un segmento dispuesto a pagar precios superiores por servicios especializados.
+
+**Fuentes:**
+
+- Forbes México. (2024). *Así es cómo la industria pet mueve miles de millones en México*. Disponible en: https://forbes.com.mx/
+- Swiss Info. (2025). *Mercado de alimentos para mascotas en México alcanzaría 3,600 millones de dólares en 2025*.
+- Kantar. (2024). Datos de gasto en alimento industrializado para perros.
+
+## Factores Sociales
+
+**Humanización de Mascotas:**
+
+El 69.8% de hogares mexicanos tienen mascotas, con más de 43.8 millones de perros. Esta profundización de los lazos humano-animal impulsa la demanda de servicios de salud preventiva.
+
+**Cambios Demográficos:**
+
+La población de mascotas creció a un CAGR del 5.5% entre 2016 y 2021, pasando de 24.7 millones a 32.2 millones, superando el crecimiento poblacional humano.
+
+**Fuentes:**
+
+- INEGI. (2021). *Encuesta Nacional de Bienestar Autorreportado (ENBIARE)*.
+- Agriculture Canada. (2024). *Sector Trend Analysis – Pet food trends in Mexico*.
+
+## Factores Tecnológicos
+
+**Avances en Genética Canina:**
+
+Las tecnologías actuales permiten identificar más de 350 razas y detectar múltiples enfermedades hereditarias. Empresas como Embark y Wisdom Panel han desarrollado bases de datos genéticas extensas.
+
+**Innovación Local:**
+
+- **Argentina**: Creación de los primeros caballos editados genéticamente usando CRISPR-Cas9 en enero de 2025.
+- **México**: Empresa Bionag desarrolla nanotecnología aplicada al mercado de mascotas.
+- **Laboratorios especializados**: Amplicare Lab en México ofrece pruebas moleculares y genéticas con tecnologías de vanguardia.
+
+**Fuentes:**
+
+- ResearchGate. (2025). *Diversificación del virus causal de moquillo canino en México*.
+- Milenio. (2024). *Mascotas, mercado que impulsa el desarrollo de nanotecnología mexicana*.
+
+## Factores Ecológicos
+
+**Salud Pública y Enfermedades Zoonóticas:**
+
+La amenaza de enfermedades zoonóticas ha elevado la importancia de la vigilancia sanitaria animal. Las pruebas genéticas contribuyen a la salud pública y bioseguridad.
+
+**Resistencia a Antibióticos:**
+
+Las pruebas genéticas que identifican sensibilidades a medicamentos (como MDR1) permiten tratamientos más precisos y reducen el uso innecesario de antibióticos.
+
+## Factores Legales
+
+**Marco Regulatorio:**
+
+- **Ley Federal de Sanidad Animal** y Reglamento de 2012
+- **NOM-012-SAG/ZOO-2020**: Regulación de productos para uso animal
+- **NOM-022-ZOO-1995**: Características zoosanitarias para establecimientos comerciales
+
+**Fuentes:**
+
+- Diario Oficial de la Federación. (2012). *Reglamento de la Ley Federal de Sanidad Animal*.
+- SENASICA. (2024). *Normas Oficiales Mexicanas en materia de Salud Animal*.
+
+# Análisis SWOT
+
+## Matriz SWOT
+
+```{r tabla-swot}
+swot_data <- data.frame(
+  Categoría = c(
+    rep("Fortalezas", 4),
+    rep("Debilidades", 4),
+    rep("Oportunidades", 4),
+    rep("Amenazas", 4)
+  ),
+  Elemento = c(
+    # Fortalezas
+    "Mercado en rápido crecimiento (CAGR 9.2% México)",
+    "Alta penetración de mascotas (69.8% hogares)",
+    "Tendencia de humanización de mascotas",
+    "Tecnología avanzada (350+ razas identificables)",
+    # Debilidades
+    "Bajo conocimiento del mercado (90% desconoce servicios)",
+    "Precio elevado para segmentos masivos",
+    "Dependencia de empresas internacionales",
+    "Infraestructura limitada en zonas rurales",
+    # Oportunidades
+    "Mercado de seguros (solo 4.3% aseguradas)",
+    "Premiumización continua del mercado",
+    "Expansión a otros animales (gatos, caballos)",
+    "Alianzas con veterinarios y clínicas",
+    # Amenazas
+    "Competencia de empresas internacionales",
+    "Sensibilidad económica e inflación",
+    "Barreras regulatorias variables",
+    "Escepticismo del consumidor"
+  )
+)
+
+# Crear tabla formateada
+swot_data %>%
+  group_by(Categoría) %>%
+  summarise(Elementos = paste("•", Elemento, collapse = "\n")) %>%
+  kable(caption = "Análisis SWOT del Mercado de Genotipificación Canina",
+        booktabs = TRUE,
+        col.names = c("Categoría", "Elementos Clave")) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = TRUE) %>%
+  row_spec(1, bold = TRUE, color = "white", background = "#10b981") %>%
+  row_spec(2, bold = TRUE, color = "white", background = "#f59e0b") %>%
+  row_spec(3, bold = TRUE, color = "white", background = "#3b82f6") %>%
+  row_spec(4, bold = TRUE, color = "white", background = "#ef4444")
+```
+
+## Estrategias Derivadas
+
+### Estrategias FO (Fortalezas-Oportunidades)
+
+- Aprovechar crecimiento del mercado para desarrollar productos integrados con seguros
+- Utilizar capacidades locales para crear bases de datos regionales más precisas
+- Expandir modelo de kits caseros a segmentos premium y criadores profesionales
+
+### Estrategias DO (Debilidades-Oportunidades)
+
+- Invertir en educación del mercado para superar bajo conocimiento
+- Desarrollar alianzas con veterinarios para mejorar integración de sistemas
+- Crear planes de financiamiento para abordar sensibilidad al precio
+
+### Estrategias FA (Fortalezas-Amenazas)
+
+- Usar apoyo gubernamental para crear barreras de entrada regulatorias
+- Diferenciar con servicio local y comprensión del mercado regional
+- Desarrollar tecnología propia para reducir dependencia internacional
+
+### Estrategias DA (Debilidades-Amenazas)
+
+- Formar alianzas estratégicas para competir con empresas internacionales
+- Invertir en infraestructura para reducir dependencia logística
+- Desarrollar programas de certificación veterinaria para superar resistencia
+
+# Análisis de las 5 Fuerzas de Porter
+
+## Gráfico Radar de Fuerzas Competitivas
+
+```{r grafico-porter, fig.cap="Intensidad de las 5 Fuerzas de Porter"}
+library(fmsb)
+
+fuerzas_porter <- data.frame(
+  Fuerza = c("Rivalidad\nCompetidores", "Amenaza\nNuevos Entrantes", 
+             "Poder\nProveedores", "Poder\nCompradores", "Amenaza\nSustitutos"),
+  Intensidad = c(8, 6, 4, 7, 6)
+)
+
+# Preparar datos para gráfico radar
+max_val <- 10
+min_val <- 0
+
+# Crear matriz para fmsb y convertir a data.frame
+porter_radar <- data.frame(rbind(
+  rep(max_val, 5), # Máximo
+  rep(min_val, 5), # Mínimo
+  fuerzas_porter$Intensidad # Valores reales
+))
+colnames(porter_radar) <- fuerzas_porter$Fuerza
+
+# Crear gráfico radar
+radarchart(
+  porter_radar,
+  axistype = 1,
+  pcol = "#3b82f6",
+  pfcol = rgb(59, 130, 246, 0.3, maxColorValue = 255),
+  plwd = 2,
+  cglcol = "grey",
+  cglty = 1,
+  axislabcol = "black",
+  caxislabels = seq(0, 10, 2.5),
+  cglwd = 0.8,
+  vlcex = 0.9,
+  title = "Intensidad de las 5 Fuerzas de Porter\n(Escala 0-10)"
+)
+```
+
+**Fuente:** Análisis propio basado en investigación de mercado de Grand View Research (2024), IMARC Group (2024) y análisis competitivo.
+
+## Detalle de las Fuerzas
+
+```{r tabla-porter}
+porter_detalle <- data.frame(
+  Fuerza = c(
+    "Rivalidad entre Competidores",
+    "Amenaza de Nuevos Entrantes",
+    "Poder de Proveedores",
+    "Poder de Compradores",
+    "Amenaza de Sustitutos"
+  ),
+  Nivel = c("ALTA", "MEDIA", "MEDIO-BAJO", "MEDIO-ALTO", "MEDIA"),
+  Intensidad = c(8, 6, 4, 7, 6),
+  Descripción = c(
+    "Competencia intensa de Embark, Wisdom Panel con recursos significativos",
+    "Barreras moderadas por inversión en tecnología y marca",
+    "Mercado de proveedores fragmentado con múltiples alternativas",
+    "Sensibilidad al precio y bajos costos de cambio otorgan poder",
+    "Existen alternativas tradicionales pero valor único en prevención"
+  )
+)
+
+kable(porter_detalle,
+      caption = "Análisis Detallado de las 5 Fuerzas de Porter",
+      booktabs = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = TRUE,
+                font_size = 11) %>%
+  column_spec(1, bold = TRUE, width = "3cm") %>%
+  column_spec(2, bold = TRUE, width = "2cm") %>%
+  column_spec(3, width = "1.5cm") %>%
+  column_spec(4, width = "8cm")
+```
+
+### Conclusión del Análisis de Porter
+
+El mercado presenta una **intensidad competitiva moderada-alta**. La combinación de alta rivalidad entre competidores existentes y medio-alto poder de negociación de compradores crea presión sobre márgenes y requiere diferenciación efectiva.
+
+**Estrategias recomendadas:**
+
+1. **Diferenciación**: Desarrollar propuestas de valor únicas basadas en servicio local y bases de datos regionales
+2. **Educación**: Invertir en programas educativos para veterinarios y propietarios
+3. **Alianzas**: Establecer relaciones con veterinarios, clínicas y criadores
+4. **Precio**: Desarrollar modelos de precio accesibles o financiamiento
+5. **Tecnología**: Invertir en investigación local para mejorar precisión
+
+# Business Model Canvas
+
+## Componentes del Modelo de Negocio
+
+```{r tabla-bmc}
+bmc <- data.frame(
+  Componente = c(
+    "Segmentos de Clientes",
+    "Propuesta de Valor",
+    "Canales",
+    "Relaciones con Clientes",
+    "Fuentes de Ingresos",
+    "Recursos Clave",
+    "Actividades Clave",
+    "Asociaciones Clave",
+    "Estructura de Costos"
+  ),
+  Descripción = c(
+    "Propietarios premium, criadores profesionales, veterinarios, adoptantes de mestizos",
+    "Prevención de enfermedades, conocimiento profundo, nutrición personalizada, sensibilidad a medicamentos",
+    "E-commerce D2C, programas veterinarios B2B2C, criadores B2B, alianzas con seguros y tiendas",
+    "Educación continua, soporte personalizado, comunidad de usuarios, actualizaciones de base de datos",
+    "Kits básicos ($60-80), salud ($100-150), premium ($150-200), suscripciones ($50-80/año), B2B criadores",
+    "Laboratorio ($500K-1M), base de datos genética, plataforma digital, genetistas, certificaciones",
+    "I+D, procesamiento 500-1000 muestras/mes, marketing y educación, gestión de calidad, alianzas",
+    "Proveedores tecnología (Illumina, Thermo Fisher), universidades (UNAM), colegios veterinarios, logística",
+    "Variables: $30-50/prueba | Fijos: $70-120K/mes | Punto equilibrio: 1,360 pruebas/mes"
+  )
+)
+
+kable(bmc,
+      caption = "Business Model Canvas - Genotipificación Canina",
+      booktabs = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = TRUE,
+                font_size = 11) %>%
+  column_spec(1, bold = TRUE, width = "4cm") %>%
+  column_spec(2, width = "11cm")
+```
+
+## Métricas Clave de Desempeño (KPIs)
+
+```{r tabla-kpis}
+kpis <- data.frame(
+  Métrica = c(
+    "CAC (Costo de Adquisición de Cliente)",
+    "LTV (Valor de Vida del Cliente)",
+    "Ratio LTV/CAC",
+    "Margen Bruto",
+    "Tasa de Conversión",
+    "Tiempo de Procesamiento",
+    "Capacidad Mensual"
+  ),
+  Objetivo = c(
+    "USD 30-50",
+    "USD 200-300",
+    "> 3.0",
+    "50-60%",
+    "2-4%",
+    "< 15 días",
+    "500-1,000 muestras"
+  ),
+  Descripción = c(
+    "Inversión en marketing por nuevo cliente",
+    "Ingresos totales esperados (1.5-2 pruebas + suscripción)",
+    "Indicador de eficiencia de marketing",
+    "Porcentaje después de costos variables",
+    "Visitantes web que compran",
+    "Desde recepción hasta entrega de resultados",
+    "Capacidad de procesamiento de laboratorio"
+  )
+)
+
+kable(kpis,
+      caption = "Métricas Clave de Desempeño del Modelo de Negocio",
+      booktabs = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = TRUE) %>%
+  column_spec(1, bold = TRUE, width = "4cm") %>%
+  column_spec(2, bold = TRUE, color = "#3b82f6", width = "3cm") %>%
+  column_spec(3, width = "8cm")
+```
+
+# Conclusiones y Recomendaciones
+
+## Conclusiones Principales
+
+1. **Mercado Atractivo en Crecimiento**: El mercado presenta un CAGR del 9.2% en México y 8.4% en Latinoamérica, superando significativamente el crecimiento económico general.
+
+2. **Tendencias Favorables**: La humanización de mascotas (69.8% hogares con mascotas) y el gasto creciente en salud animal crean un entorno propicio.
+
+3. **Oportunidad en Seguros**: Solo 4.3% de mascotas aseguradas representa una oportunidad masiva para productos integrados.
+
+4. **Competencia Manejable**: Aunque intensa, el desarrollo de capacidades locales y conocimiento regional ofrecen diferenciación.
+
+5. **Educación Crítica**: 90% desconoce servicios especializados, requiriendo inversión significativa en educación del mercado.
+
+## Recomendaciones Estratégicas
+
+### Estrategia de Entrada al Mercado
+
+- **Segmentación inicial**: Propietarios premium y criadores profesionales
+- **Alianzas veterinarias**: Programas de referencia con clínicas líderes
+- **Diferenciación regional**: Bases de datos específicas para poblaciones latinoamericanas
+
+### Modelo de Negocio
+
+- **Pricing escalonado**: Básico ($60-80), Salud ($100-150), Premium ($150-200)
+- **Suscripciones**: $50-80/año para actualizaciones y consultas
+- **Punto de equilibrio**: 1,360 pruebas/mes con margen bruto 58%
+
+### Marketing y Educación
+
+- **Contenido educativo**: Blogs, videos, webinars sobre genética canina
+- **Formación veterinaria**: Seminarios y certificaciones
+- **Marketing digital**: Campañas en redes sociales con testimonios
+
+### Desarrollo de Producto
+
+- **Servicios integrados**: Alianzas con aseguradoras
+- **Valor agregado**: Nutrición personalizada, planes de ejercicio
+- **Expansión de especies**: Gatos (mayor crecimiento) y caballos
+
+### Operaciones y Tecnología
+
+- **Inversión inicial**: USD 1.1-1.95M
+- **Capacidad objetivo**: 500-1,000 muestras/mes
+- **Tiempo de procesamiento**: < 15 días
+- **Certificaciones**: ISO/GLP y NOM-012-SAG/ZOO-2020
+
+### Expansión Regional
+
+- **Mercados prioritarios**: México → Argentina → Brasil
+- **Adaptación regulatoria**: Equipo legal especializado
+- **Logística regional**: Alianzas con mensajería confiable
+
+## Factores Críticos de Éxito
+
+1. **Educación del Mercado**: Inversión sostenida en concienciación
+2. **Alianzas Veterinarias**: Red sólida de veterinarios que recomiendan servicios
+3. **Calidad y Precisión**: Resultados confiables y científicamente validados
+4. **Experiencia del Cliente**: Proceso simple y comunicación clara
+5. **Innovación Continua**: Actualización constante de bases de datos
+6. **Gestión Financiera**: Control de costos y optimización de márgenes
+
+# Referencias Bibliográficas
+
+## Fuentes de Datos de Mercado
+
+1. **Grand View Research**. (2024). *Mexico Pet DNA Testing Market Size & Outlook, 2024-2030*. Horizon Databook. Recuperado de https://www.grandviewresearch.com/horizon/outlook/pet-dna-testing-market/mexico
+
+2. **Grand View Research**. (2024). *Latin America Veterinary DNA Testing Market Size & Outlook, 2030*. Horizon Databook. Recuperado de https://www.grandviewresearch.com/horizon/outlook/veterinary-dna-testing-market/latin-america
+
+3. **IMARC Group**. (2024). *Mexico Veterinary Healthcare Market Report 2025-2033*. Recuperado de https://www.imarcgroup.com/report/es/mexico-veterinary-healthcare-market
+
+4. **IMARC Group**. (2024). *Latin America Pet Care Market Size and Forecast to 2033*. Recuperado de https://www.imarcgroup.com/latin-america-pet-care-market
+
+## Fuentes Gubernamentales y Estadísticas
+
+5. **Instituto Nacional de Estadística y Geografía (INEGI)**. (2021). *Encuesta Nacional de Bienestar Autorreportado (ENBIARE)*. México.
+
+6. **Gobierno de México - SENASICA**. (2024). *Control de Productos Veterinarios*. Recuperado de https://www.gob.mx/senasica/acciones-y-programas/regulacion-de-productos-veterinarios
+
+7. **Gobierno de México - SENASICA**. (2024). *Normas Oficiales Mexicanas en materia de Salud Animal*. Recuperado de https://www.gob.mx/senasica/documentos/normatividad-en-materia-de-salud-animal
+
+8. **Diario Oficial de la Federación**. (2020). *NORMA Oficial Mexicana NOM-012-SAG/ZOO-2020, Especificaciones para la regulación de productos para uso o consumo animal*. Recuperado de https://www.dof.gob.mx/normasOficiales/9371/sader/sader.html
+
+## Fuentes de Industria y Medios
+
+9. **Forbes México**. (2024). *Así es cómo la industria pet mueve miles de millones en México*. Recuperado de https://forbes.com.mx/
+
+10. **Swiss Info**. (2025). *Mercado de alimentos para mascotas en México alcanzaría 3,600 millones de dólares en 2025*. Recuperado de https://www.swissinfo.ch/
+
+11. **Milenio**. (2024). *Mascotas, mercado que impulsa el desarrollo de nanotecnología mexicana*. Recuperado de https://www.milenio.com/negocios/mascotas-mercado-impulsa-desarrollo-nanotecnologia-mexicana
+
+12. **Anuario LatAm Seguros**. (2024). *El 4.3% de las mascotas mexicanas cuentan con seguro*. Recuperado de https://anuariolatamseguros.com/
+
+13. **Expansion**. (2025). *México gasta cada vez más en alimento de mascotas*. Recuperado de https://expansion.mx/
+
+14. **Pet Food Latinoamérica**. (2025). *El Pet Food en 2024 en Latinoamérica: Consolidación, premiumización y desafíos fiscales*. Recuperado de https://petfoodlatinoamerica.com/
+
+## Fuentes Académicas y Científicas
+
+15. **ResearchGate**. (2025). *Diversificación del Virus Causal de Moquillo Canino en México*. Recuperado de https://www.researchgate.net/publication/392285965
+
+16. **CICESE**. (2018). García Aguirre, C. A. *Genotipificación del virus del moquillo canino aislado de perros enfermos y su relación con la eficacia del tratamiento antiviral con nanopartículas de plata*. Tesis de maestría.
+
+17. **BMEditores**. (2025). *Enfermedades hereditarias en perros*. Entorno Pecuario. Recuperado de https://bmeditores.mx/entorno-pecuario/enfermedades-hereditarias-en-perros/
+
+## Empresas y Servicios
+
+18. **ADN Center México**. (2024). *ADN Animal - Servicios de pruebas de ADN para mascotas*. Recuperado de https://adncentermexico.com/adn-animal/
+
+19. **Amplicare Lab**. (2024). *Innovación en Diagnóstico Veterinario*. Recuperado de https://www.amplicarelab.com/
+
+20. **Bienestar Canino FCM**. (2024). *Pruebas ADN*. Recuperado de https://bienestarcanino.fcm.mx/dna-testing/
+
+21. **Koko Genetics**. (2024). *Test ADN mascotas | Prueba ADN Razas y Salud*. Recuperado de https://www.kokogenetics.com/
+
+22. **Embark Veterinary**. (2024). *Dog DNA Test: Know your dog. Better*. Recuperado de https://embarkvet.com/
+
+23. **Wisdom Panel**. (2024). *The world's most accurate pet DNA test*. Recuperado de https://www.wisdompanel.com/
+
+## Fuentes Internacionales
+
+24. **Agriculture Canada**. (2024). *Sector Trend Analysis – Pet food trends in Mexico*. Recuperado de https://agriculture.canada.ca/
+
+25. **USDA Foreign Agricultural Service**. (2025). *Expanding the Dog and Cat food Market in South America and Caribbean*. Recuperado de https://www.fas.usda.gov/
+
+26. **Euromonitor International**. (2024). *Latin America Pet Food Market Trends*.
+
+27. **Zion Market Research**. (2024). *Dog DNA Test Market Size, Share, Growth Report, 2034*. Recuperado de https://www.zionmarketresearch.com/report/dog-dna-test-market
+
+28. **MetaTech Insights**. (2024). *Latin America Pet DNA Testing Market Share, Size, 2025-2035*. Recuperado de https://www.metatechinsights.com/
+
+---
+
+**Nota sobre Metodología:**
+
+Este análisis se basa en datos secundarios de fuentes confiables de investigación de mercado, instituciones gubernamentales, publicaciones de la industria y fuentes académicas. Los datos de mercado provienen principalmente de Grand View Research e IMARC Group, reconocidas firmas de investigación de mercado. Las estadísticas demográficas y sociales provienen del INEGI, la institución oficial de estadística de México.
+
+El análisis PESTEL, SWOT, 5 Fuerzas de Porter y Business Model Canvas son marcos de análisis estratégico aplicados a los datos recopilados, representando una evaluación profesional del mercado basada en la información disponible hasta noviembre de 2024.
+
+---
+
+**Fecha de elaboración:** `r format(Sys.Date(), "%d de %B de %Y")`
+
+**Contacto:** Para más información sobre este análisis, consulte las fuentes citadas o contacte a las instituciones mencionadas.
